@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+  LINE 6 ▶ CHANGE BROWSER TAB TITLE
+============================================================ -->
+<title>Daily Reading & Consumption Entry Hub</title>
+
+<!-- ============================================================
+  LINE 10 ▶ CHANGE FONT — replace 'Sora' with any Google Font name
+  More fonts at: https://fonts.google.com
+  e.g. Roboto, Poppins, Nunito, Montserrat, Inter
+============================================================ -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   MASTER COLOR SETTINGS — Change colors here, applies everywhere
+   Use any hex color code e.g. #ff0000 = red, #ffffff = white
+============================================================ */
+:root {
+  --bg:      #0d1117;   /* LINE 22 ► PAGE BACKGROUND COLOR */
+  --surface: #161b22;   /* LINE 23 ► HEADER & SIDEBAR BACKGROUND */
+  --card:    #1c2230;   /* LINE 24 ► CARD BACKGROUND COLOR */
+  --border:  #2d3748;   /* LINE 25 ► BORDER / DIVIDER COLOR */
+  --accent:  #00d4aa;   /* LINE 26 ► PRIMARY ACCENT COLOR (teal) */
+  --accent2: #4f8ef7;   /* LINE 27 ► SECONDARY ACCENT COLOR (blue) */
+  --accent3: #f7944f;   /* LINE 28 ► TERTIARY ACCENT COLOR (orange) */
+  --text:    #e6edf3;   /* LINE 29 ► MAIN TEXT COLOR */
+  --muted:   #7d8fa3;   /* LINE 30 ► MUTED / SECONDARY TEXT COLOR */
+  --danger:  #ff6b6b;   /* LINE 31 ► DELETE / WARNING COLOR (red) */
+  --sidebar-width: 240px; /* LINE 32 ► SIDEBAR WIDTH */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Sora', sans-serif; /* LINE 37 ► MAIN FONT */
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* LAYOUT */
+.layout { display: flex; flex: 1; }
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--surface); /* LINE 52 ► SIDEBAR BACKGROUND */
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 62px;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 90;
+  transition: transform 0.3s;
+}
+
+.sidebar-heading {
+  font-size: 0.65rem;    /* LINE 65 ► SIDEBAR GROUP HEADING SIZE */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);   /* LINE 69 ► SIDEBAR HEADING COLOR */
+  padding: 20px 16px 8px;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  color: var(--text);    /* LINE 79 ► SIDEBAR LINK TEXT COLOR */
+  text-decoration: none;
+  font-size: 0.85rem;    /* LINE 81 ► SIDEBAR LINK FONT SIZE */
+  font-weight: 400;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active {
+  background: rgba(255,255,255,0.05);
+  color: var(--accent);  /* LINE 90 ► SIDEBAR ACTIVE LINK COLOR */
+  border-left-color: var(--accent);
+}
+.sidebar a .nav-icon { font-size: 1rem; }
+.sidebar-divider { height:1px; background:var(--border); margin:8px 0; }
+
+/* ============================================================
+   TOP HEADER
+============================================================ */
+header {
+  background: var(--surface); /* LINE 101 ► HEADER BACKGROUND */
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-area { display:flex; align-items:center; gap:12px; }
+
+.logo-img {
+  width: 36px;   /* LINE 115 ► LOGO WIDTH */
+  height: 36px;  /* LINE 116 ► LOGO HEIGHT */
+  border-radius: 6px;
+  object-fit: contain;
+  display: none;
+}
+
+.logo-placeholder {
+  width: 36px; height: 36px;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; color: var(--muted); text-align: center;
+  line-height: 1.2; cursor: pointer; transition: border-color 0.2s;
+}
+.logo-placeholder:hover { border-color: var(--accent); }
+
+.site-name {
+  font-size: 1rem;      /* LINE 133 ► HEADER SITE NAME FONT SIZE */
+  font-weight: 700;
+  color: var(--text);   /* LINE 135 ► HEADER SITE NAME COLOR */
+}
+.site-name span { color: var(--accent); } /* LINE 137 ► ACCENT PART COLOR */
+
+.header-right { display:flex; align-items:center; gap:12px; }
+
+.edit-toggle {
+  background: var(--accent); /* LINE 142 ► EDIT BUTTON BG COLOR */
+  color: #000;               /* LINE 143 ► EDIT BUTTON TEXT COLOR */
+  border: none; padding: 8px 18px; border-radius: 6px;
+  font-family: 'Sora', sans-serif; font-weight: 600;
+  font-size: 0.82rem; cursor: pointer; transition: opacity 0.2s;
+}
+.edit-toggle:hover { opacity: 0.85; }
+.edit-toggle.active { background: var(--danger); color: #fff; }
+
+/* ============================================================
+   HERO BANNER
+============================================================ */
+.hero {
+  /* LINE 154 ► HERO GRADIENT — change the 3 hex color values */
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  padding: 40px 32px 36px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  margin-left: var(--sidebar-width);
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 60% 50%, rgba(0,212,170,0.08), transparent 70%);
+}
+
+.hero h1 {
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem); /* LINE 168 ► HERO TITLE FONT SIZE */
+  font-weight: 700;
+  color: var(--text);   /* LINE 170 ► HERO TITLE COLOR */
+  position: relative;
+}
+.hero h1 em { color: var(--accent); font-style: normal; } /* LINE 173 ► HERO HIGHLIGHT COLOR */
+
+.hero p {
+  margin-top: 10px;
+  color: var(--muted);  /* LINE 177 ► HERO SUBTITLE COLOR */
+  font-size: 0.92rem;   /* LINE 178 ► HERO SUBTITLE FONT SIZE */
+  position: relative;
+}
+
+[contenteditable="true"] { outline:2px dashed var(--accent); border-radius:4px; padding:2px 6px; cursor:text; }
+[contenteditable="false"] { outline:none; padding:0; }
+
+/* ============================================================
+   MAIN CONTENT
+============================================================ */
+.page-content { margin-left: var(--sidebar-width); flex:1; }
+main { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+
+/* SECTIONS */
+.section-block { display:none; }
+.section-block.active { display:block; }
+
+.section-header {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:24px; margin-top:0;
+}
+
+.section-header h2 {
+  font-size: 1rem;       /* LINE 200 ► SECTION HEADING FONT SIZE */
+  font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--muted);   /* LINE 203 ► SECTION HEADING COLOR */
+  white-space: nowrap;
+}
+.section-header .line { flex:1; height:1px; background:var(--border); }
+
+.section-badge {
+  font-size: 0.7rem;
+  background: var(--card);   /* LINE 210 ► BADGE BACKGROUND */
+  border: 1px solid var(--border);
+  color: var(--muted);       /* LINE 212 ► BADGE TEXT COLOR */
+  padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+}
+
+/* ============================================================
+   CARDS GRID
+============================================================ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* LINE 221 ► CARD MIN WIDTH */
+  gap: 20px;           /* LINE 222 ► GAP BETWEEN CARDS */
+  margin-bottom: 48px;
+}
+
+.entry-card {
+  background: var(--card);   /* LINE 227 ► CARD BACKGROUND */
+  border: 1px solid var(--border);
+  border-radius: 12px;       /* LINE 229 ► CARD CORNER ROUNDNESS */
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+}
+.entry-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+.card-top { padding:18px 20px 14px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+
+.card-label {
+  font-size: 1rem;       /* LINE 240 ► CARD TITLE FONT SIZE */
+  font-weight: 600;
+  color: var(--text);    /* LINE 242 ► CARD TITLE TEXT COLOR */
+  line-height: 1.3;
+}
+
+.card-meta {
+  font-size: 0.75rem;    /* LINE 247 ► CARD SUBTITLE FONT SIZE */
+  color: var(--muted);   /* LINE 248 ► CARD SUBTITLE TEXT COLOR */
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.dot-green  { background: var(--accent); }
+.dot-blue   { background: var(--accent2); }
+.dot-orange { background: var(--accent3); }
+.dot-red    { background: var(--danger); }
+
+/* ============================================================
+   QR CODE ZONE
+============================================================ */
+.qr-zone {
+  padding: 20px;              /* LINE 261 ► QR AREA PADDING */
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  background: var(--surface); /* LINE 263 ► QR AREA BACKGROUND */
+}
+
+.qr-placeholder {
+  width: 140px;   /* LINE 267 ► QR BOX WIDTH */
+  height: 140px;  /* LINE 268 ► QR BOX HEIGHT */
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  color: var(--muted); font-size:0.7rem; text-align:center;
+  cursor:pointer; transition:border-color 0.2s, background 0.2s;
+  position:relative; overflow:hidden;
+}
+.qr-placeholder:hover { border-color:var(--accent); background:rgba(0,212,170,0.04); }
+.qr-placeholder svg { opacity:0.4; }
+.qr-placeholder img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; border-radius:6px; }
+.qr-upload-input { display:none; }
+
+/* ============================================================
+   LINK INPUT
+============================================================ */
+.link-row { width:100%; display:flex; gap:8px; align-items:center; }
+
+.link-input {
+  flex: 1;
+  background: var(--card);   /* LINE 285 ► LINK INPUT BACKGROUND */
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;         /* LINE 289 ► INCREASE PADDING FOR TALLER INPUT */
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;        /* LINE 291 ► LINK INPUT FONT SIZE */
+  color: var(--accent2);     /* LINE 292 ► LINK INPUT TEXT COLOR */
+  outline: none;
+  transition: border-color 0.2s;
+}
+.link-input:focus { border-color: var(--accent2); }
+.link-input::placeholder { color: var(--muted); }
+
+.go-btn {
+  background: var(--accent2); /* LINE 300 ► OPEN BUTTON BACKGROUND */
+  color: #fff;                /* LINE 301 ► OPEN BUTTON TEXT COLOR */
+  border: none; border-radius: 6px; padding: 8px 14px;
+  font-size: 0.78rem;         /* LINE 303 ► OPEN BUTTON FONT SIZE */
+  font-weight: 600; cursor: pointer;
+  font-family: 'Sora', sans-serif; white-space: nowrap;
+  transition: opacity 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.go-btn:hover { opacity: 0.85; }
+
+/* Edit mode helpers */
+.add-card {
+  background:transparent; border:2px dashed var(--border); border-radius:12px;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; color:var(--muted); font-size:0.82rem; cursor:pointer;
+  transition:border-color 0.2s, color 0.2s; min-height:200px; font-family:'Sora',sans-serif;
+}
+.add-card:hover { border-color:var(--accent); color:var(--accent); }
+.delete-btn {
+  display:none; position:absolute; top:8px; right:8px;
+  background:var(--danger); color:#fff; border:none; border-radius:50%;
+  width:22px; height:22px; font-size:0.8rem; cursor:pointer;
+  align-items:center; justify-content:center; z-index:10; line-height:1;
+}
+body.edit-mode .delete-btn { display:flex; }
+body.edit-mode .add-card   { display:flex; }
+.dot-picker { display:none; gap:6px; flex-wrap:wrap; padding:0 20px 16px; }
+body.edit-mode .dot-picker { display:flex; }
+.dot-pick { width:16px; height:16px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border-color 0.15s; }
+.dot-pick:hover { border-color:#fff; }
+.tip { background:rgba(0,212,170,0.1); border:1px solid rgba(0,212,170,0.3); color:var(--accent); border-radius:8px; padding:10px 16px; font-size:0.8rem; margin-bottom:28px; display:none; }
+body.edit-mode .tip { display:block; }
+
+/* Sidebar add-section button */
+.sidebar-add-btn { display:none; width:calc(100% - 32px); margin:8px 16px; background:rgba(0,212,170,0.1); border:1px dashed var(--accent); color:var(--accent); border-radius:6px; padding:7px; font-size:0.78rem; cursor:pointer; font-family:'Sora',sans-serif; }
+body.edit-mode .sidebar-add-btn { display:block; }
+
+/* ============================================================
+   FOOTER
+============================================================ -->
+footer {
+  text-align:center; padding:20px;
+  color: var(--muted);   /* LINE 348 ► FOOTER TEXT COLOR */
+  font-size: 0.75rem;    /* LINE 349 ► FOOTER FONT SIZE */
+  border-top:1px solid var(--border);
+  margin-left: var(--sidebar-width);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Mobile */
+@media (max-width:700px) {
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .hero, .page-content, footer { margin-left:0; }
+  .hamburger { display:flex !important; }
+}
+.hamburger { display:none; background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer; padding:4px 8px; }
+#logoUploadInput { display:none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-area">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <!-- LOGO: In Edit Mode click the LOGO box to upload your logo image -->
+    <div class="logo-placeholder" id="logoPlaceholder" onclick="triggerLogoUpload()" title="Edit Mode: click to upload logo">LOGO</div>
+    <img id="logoImg" class="logo-img" src="" alt="Logo">
+    <input type="file" id="logoUploadInput" accept="image/*" onchange="previewLogo(this)">
+    <!-- LINE 376 ► HEADER SITE NAME TEXT -->
+    <div class="site-name" id="headerSiteName" contenteditable="false"><span>Daily</span>Hub</div>
+  </div>
+  <div class="header-right">
+    <button class="edit-toggle" id="editBtn" onclick="toggleEdit()">✏️ Edit Mode</button>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ============================================================
+  SIDEBAR NAVIGATION
+  To add pages: click Edit Mode then click "+ Add New Section"
+  Each link shows a different section in the main area
+============================================================ -->
+<nav class="sidebar" id="sidebar">
+
+  <!-- LINE 393 ► SIDEBAR GROUP HEADING 1 -->
+  <div class="sidebar-heading" id="sg1" contenteditable="false">HT Reading</div>
+  <!-- LINE 395 ► SIDEBAR LINK TEXT — change emoji and label -->
+  <a href="#" class="active" onclick="return showSection('sec-ht',this)"><span class="nav-icon">⚡</span> HT Feeder Reading</a>
+  <a href="#" onclick="return showSection('sec-ht2',this)"><span class="nav-icon">🔌</span> HT Transformer</a>
+  <a href="#" onclick="return showSection('sec-ht3',this)"><span class="nav-icon">📊</span> HT Bus Bar</a>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- LINE 403 ► SIDEBAR GROUP HEADING 2 -->
+  <div class="sidebar-heading" id="sg2" contenteditable="false">LT Reading</div>
+  <a href="#" onclick="return showSection('sec-lt',this)"><span class="nav-icon">💡</span> LT Feeder Reading</a>
+  <a href="#" onclick="return showSection('sec-lt2',this)"><span class="nav-icon">🔋</span> LT Panel Reading</a>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- LINE 410 ► SIDEBAR GROUP HEADING 3 -->
+  <div class="sidebar-heading" id="sg3" contenteditable="false">Consumption</div>
+  <a href="#" onclick="return showSection('sec-cons',this)"><span class="nav-icon">💧</span> Water Intake</a>
+  <a href="#" onclick="return showSection('sec-cons2',this)"><span class="nav-icon">🥗</span> Meal / Food Log</a>
+  <a href="#" onclick="return showSection('sec-cons3',this)"><span class="nav-icon">🌙</span> Evening Review</a>
+
+  <div class="sidebar-divider"></div>
+  <button class="sidebar-add-btn" onclick="addSection()">＋ Add New Section</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="page-content">
+
+  <!-- HERO BANNER -->
+  <div class="hero">
+    <!-- LINE 425 ► HERO TITLE TEXT -->
+    <h1 id="heroTitle" contenteditable="false"><em>Daily Reading</em> &amp; Consumption Entry</h1>
+    <!-- LINE 427 ► HERO SUBTITLE TEXT -->
+    <p id="heroSub" contenteditable="false">Click a form button or scan a QR code to log your daily entry</p>
+  </div>
+
+  <main>
+    <div class="tip">✏️ <strong>Edit Mode ON</strong> — Click any text to rename it. Paste MS Form link in URL box. Click QR placeholder to upload QR image. Click LOGO in header to upload logo. Click "+ Add New Section" in sidebar to add pages.</div>
+
+<!-- ================================================================
+  HOW TO ADD MORE SECTIONS:
+  1. Copy a full section block below (from "section-block" div to its closing div)
+  2. Change the id="sec-XXX" to a new unique name e.g. id="sec-gen"
+  3. Add a matching sidebar link: showSection('sec-gen', this)
+================================================================ -->
+
+    <!-- SECTION: HT FEEDER -->
+    <div class="section-block active" id="sec-ht">
+      <div class="section-header">
+        <h2 contenteditable="false">⚡ HT Feeder Reading</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">HT · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-ht">
+        <div class="entry-card" data-dot="dot-green">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top">
+            <div>
+              <!-- LINE 452 ► CARD TITLE -->
+              <div class="card-label" contenteditable="false">⚡ Morning HT Reading</div>
+              <!-- LINE 454 ► CARD SUBTITLE -->
+              <div class="card-meta" contenteditable="false">MS Form · Daily</div>
+            </div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="dot-picker">
+            <div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div>
+          </div>
+          <div class="qr-zone">
+            <!-- QR PLACEHOLDER: In Edit Mode click to upload your QR image -->
+            <div class="qr-placeholder" onclick="triggerQRUpload(this)">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+              <span>📍 QR Code<br>Position 1<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span>
+              <input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)">
+            </div>
+            <!-- MS FORM LINK: Paste your link in this input box -->
+            <div class="link-row">
+              <input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)">
+              <a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card" data-dot="dot-blue">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top">
+            <div>
+              <div class="card-label" contenteditable="false">⚡ Afternoon HT Reading</div>
+              <div class="card-meta" contenteditable="false">MS Form · Daily</div>
+            </div>
+            <div class="dot dot-blue"></div>
+          </div>
+          <div class="dot-picker">
+            <div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div>
+            <div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div>
+          </div>
+          <div class="qr-zone">
+            <div class="qr-placeholder" onclick="triggerQRUpload(this)">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+              <span>📍 QR Code<br>Position 2<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span>
+              <input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)">
+            </div>
+            <div class="link-row">
+              <input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)">
+              <a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a>
+            </div>
+          </div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-ht')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: HT TRANSFORMER -->
+    <div class="section-block" id="sec-ht2">
+      <div class="section-header">
+        <h2 contenteditable="false">🔌 HT Transformer</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">HT · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-ht2">
+        <div class="entry-card" data-dot="dot-orange">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">🔌 Transformer Reading</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-orange"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 3<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-ht2')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: HT BUS BAR -->
+    <div class="section-block" id="sec-ht3">
+      <div class="section-header">
+        <h2 contenteditable="false">📊 HT Bus Bar</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">HT · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-ht3">
+        <div class="entry-card" data-dot="dot-red">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">📊 Bus Bar Reading</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-red"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 4<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-ht3')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: LT FEEDER -->
+    <div class="section-block" id="sec-lt">
+      <div class="section-header">
+        <h2 contenteditable="false">💡 LT Feeder Reading</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">LT · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-lt">
+        <div class="entry-card" data-dot="dot-green">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">💡 LT Feeder Reading</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-green"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 5<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-lt')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: LT PANEL -->
+    <div class="section-block" id="sec-lt2">
+      <div class="section-header">
+        <h2 contenteditable="false">🔋 LT Panel Reading</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">LT · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-lt2">
+        <div class="entry-card" data-dot="dot-blue">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">🔋 LT Panel Reading</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-blue"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 6<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-lt2')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: WATER INTAKE -->
+    <div class="section-block" id="sec-cons">
+      <div class="section-header">
+        <h2 contenteditable="false">💧 Water Intake</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">Consumption · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-cons">
+        <div class="entry-card" data-dot="dot-blue">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">💧 Water Intake Log</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-blue"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 7<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-cons')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: MEAL LOG -->
+    <div class="section-block" id="sec-cons2">
+      <div class="section-header">
+        <h2 contenteditable="false">🥗 Meal / Food Log</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">Consumption · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-cons2">
+        <div class="entry-card" data-dot="dot-green">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">🥗 Meal Log</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-green"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 8<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-cons2')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+    <!-- SECTION: EVENING REVIEW -->
+    <div class="section-block" id="sec-cons3">
+      <div class="section-header">
+        <h2 contenteditable="false">🌙 Evening Review</h2>
+        <div class="line"></div>
+        <span class="section-badge" contenteditable="false">Review · Daily</span>
+      </div>
+      <div class="cards-grid" id="g-sec-cons3">
+        <div class="entry-card" data-dot="dot-orange">
+          <button class="delete-btn" onclick="deleteCard(this)">✕</button>
+          <div class="card-top"><div><div class="card-label" contenteditable="false">🌙 Evening Review</div><div class="card-meta" contenteditable="false">MS Form · Daily</div></div><div class="dot dot-orange"></div></div>
+          <div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div>
+          <div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position 9<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>
+        </div>
+        <button class="add-card" onclick="addCard('g-sec-cons3')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add New Entry Card</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- LINE 663 ► FOOTER TEXT -->
+  <footer>
+    DailyHub &nbsp;·&nbsp; <span id="footerText" contenteditable="false">Your Organisation Name</span> &nbsp;·&nbsp; Hosted on Netlify
+  </footer>
+</div>
+</div>
+
+<script>
+let editMode=false, cardCounter=10, secCounter=0;
+
+function toggleEdit(){
+  editMode=!editMode;
+  document.body.classList.toggle('edit-mode',editMode);
+  const btn=document.getElementById('editBtn');
+  btn.textContent=editMode?'✅ Done Editing':'✏️ Edit Mode';
+  btn.classList.toggle('active',editMode);
+  document.querySelectorAll('#heroTitle,#heroSub,#headerSiteName,.card-label,.card-meta,.section-header h2,.section-badge,#footerText,.sidebar-heading').forEach(el=>el.contentEditable=editMode?'true':'false');
+  document.getElementById('logoPlaceholder').style.cursor=editMode?'pointer':'default';
+}
+
+function showSection(id,el){
+  document.querySelectorAll('.section-block').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
+  const s=document.getElementById(id); if(s) s.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  return false;
+}
+
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+function addSection(){
+  secCounter++;
+  const secId='dyn-sec-'+secCounter, gridId='g-'+secId;
+  const sb=document.getElementById('sidebar'), ab=sb.querySelector('.sidebar-add-btn');
+  const d=document.createElement('div'); d.className='sidebar-divider';
+  const h=document.createElement('div'); h.className='sidebar-heading'; h.contentEditable='true'; h.textContent='New Section '+secCounter;
+  const a=document.createElement('a'); a.href='#'; a.innerHTML='<span class="nav-icon">📋</span> New Page '+secCounter;
+  a.onclick=function(){return showSection(secId,this);};
+  sb.insertBefore(d,ab); sb.insertBefore(h,ab); sb.insertBefore(a,ab);
+  const sec=document.createElement('div'); sec.className='section-block'; sec.id=secId;
+  sec.innerHTML=`<div class="section-header"><h2 contenteditable="true">📋 New Section ${secCounter}</h2><div class="line"></div><span class="section-badge" contenteditable="true">New · Daily</span></div><div class="cards-grid" id="${gridId}"><button class="add-card" style="display:flex" onclick="addCard('${gridId}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Entry Card</button></div>`;
+  document.querySelector('main').appendChild(sec);
+  showSection(secId,a);
+}
+
+function triggerLogoUpload(){ if(!editMode) return; document.getElementById('logoUploadInput').click(); }
+function previewLogo(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{
+    const img=document.getElementById('logoImg'); img.src=e.target.result; img.style.display='block';
+    document.getElementById('logoPlaceholder').style.display='none';
+  }; r.readAsDataURL(f);
+}
+
+function triggerQRUpload(p){ if(!editMode) return; p.querySelector('.qr-upload-input').click(); }
+function previewQR(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{
+    const p=input.closest('.qr-placeholder');
+    const old=p.querySelector('img'); if(old) old.remove();
+    const img=document.createElement('img'); img.src=e.target.result; p.appendChild(img);
+    p.querySelectorAll('svg,span').forEach(el=>el.style.display='none');
+  }; r.readAsDataURL(f);
+}
+
+function syncLink(input){ input.closest('.link-row').querySelector('.go-btn').href=input.value||'#'; }
+function openLink(btn){
+  if(!btn.href||btn.href==='#'||btn.href===window.location.href){alert('Please paste a valid MS Form link first.');return false;}
+  return true;
+}
+
+function changeDot(picker,cls){
+  const card=picker.closest('.entry-card');
+  card.querySelector('.dot').className='dot '+cls;
+}
+
+function addCard(gridId){
+  cardCounter++;
+  const grid=document.getElementById(gridId), addBtn=grid.querySelector('.add-card');
+  const div=document.createElement('div'); div.className='entry-card';
+  div.innerHTML=`<button class="delete-btn" onclick="deleteCard(this)">✕</button><div class="card-top"><div><div class="card-label" contenteditable="true">📋 New Entry Form</div><div class="card-meta" contenteditable="true">MS Form · Daily</div></div><div class="dot dot-blue"></div></div><div class="dot-picker"><div class="dot-pick" onclick="changeDot(this,'dot-green')" style="background:var(--accent)"></div><div class="dot-pick" onclick="changeDot(this,'dot-blue')" style="background:var(--accent2)"></div><div class="dot-pick" onclick="changeDot(this,'dot-orange')" style="background:var(--accent3)"></div><div class="dot-pick" onclick="changeDot(this,'dot-red')" style="background:var(--danger)"></div></div><div class="qr-zone"><div class="qr-placeholder" onclick="triggerQRUpload(this)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="4" y="4" width="4" height="4"/><rect x="16" y="4" width="4" height="4"/><rect x="4" y="16" width="4" height="4"/><path d="M14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg><span>📍 QR Code<br>Position ${cardCounter}<br><em style="font-size:0.65rem">(Edit Mode to upload)</em></span><input type="file" class="qr-upload-input" accept="image/*" onchange="previewQR(this)"></div><div class="link-row"><input class="link-input" type="url" placeholder="📋 Paste MS Form link here…" oninput="syncLink(this)"><a class="go-btn" href="#" target="_blank" onclick="return openLink(this)">Open ↗</a></div></div>`;
+  grid.insertBefore(div,addBtn);
+}
+
+function deleteCard(btn){ if(confirm('Remove this card?')) btn.closest('.entry-card').remove(); }
+</script>
+</body>
+</html>
